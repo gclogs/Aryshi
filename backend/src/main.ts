@@ -1,10 +1,12 @@
 import Koa from 'koa';
+import router from './routes'
 
-const server = new Koa();
+const server: Koa = new Koa();
 
-server.use(async ctx => {
-  ctx.body = 'Hello world';
-})
+server.use(router.routes());
+server.use(router.allowedMethods({
+  throw: true
+}));
 
 server.listen(4000, () => {
   console.log(`Listening to port 4000`)
