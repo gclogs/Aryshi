@@ -4,6 +4,10 @@
 ## 🧩 Army Report System (ARS) : 아리시
 #### 군 장병들 휴대폰 활성화와 코로나 시대의 도입으로 인한 많은 보고 체계와 대면으로 말하기 힘든 사안들을 종합한 리포트 웹앱입니다.
 
+It is a report web app that combines many reporting systems and difficulties to talk face-to-face due to the revitalization of military personnel's mobile phones and the introduction of the COVID-19 era.
+
+(Simply put, you can think of it as a small community or blog.)
+
 ## 🧸 프로젝트 소개
 
 ### 개요
