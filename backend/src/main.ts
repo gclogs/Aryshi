@@ -1,7 +1,11 @@
 import Koa from 'koa';
 import router from './routes'
+import mongoDB from './database';
 
+const database = new mongoDB();
 const server: Koa = new Koa();
+
+database.conn();
 
 server.use(router.routes());
 server.use(router.allowedMethods({
