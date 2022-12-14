@@ -1,13 +1,10 @@
 import Router from "@koa/router";
-
 const authRoute = new Router();
 
-authRoute.post('/register', async ctx => {
-  return 'register'
-})
+authRoute.post('/register/local', )
 
-authRoute.post('/login', async ctx => {
-  return 'login'
-})
+authRoute.post('/login', )
+
+authRoute.post('/logout', )
 
 export default authRoute;
