@@ -10,13 +10,13 @@ export const passwordEncryption = (password: string) => {
 export const userRegiseter = async (
   name: string,
   email: string,
-  password: string,
   nickname: string,
   service_number: number,
+  password: string,
   salt: string,
 ) => {
   const user = new User({
-    name, email, password, nickname, service_number, salt
+    name, email, nickname, service_number, password, salt
   });
 
   try {
