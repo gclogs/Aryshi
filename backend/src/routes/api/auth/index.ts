@@ -5,10 +5,10 @@ import { passwordEncryption, userRegiseter } from '../../../services/user.servic
 const authRoute = new Router();
 
 authRoute.post('/register/local', async ctx => {
-  const { name, email, nickname, password, service_number  } = ctx.request.body;
+  const { user_id, name, email, nickname, password, service_number  } = ctx.request.body;
   
   const EncryptedPwd = passwordEncryption(password)
-  const user = userRegiseter(name, email, nickname, service_number, EncryptedPwd[0], EncryptedPwd[1]);
+  const user = userRegiseter(user_id, name, email, nickname, service_number, EncryptedPwd[0], EncryptedPwd[1]);
   ctx.status = 200;
 
   console.log(user);

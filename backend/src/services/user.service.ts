@@ -8,6 +8,7 @@ export const passwordEncryption = (password: string) => {
 }
 
 export const userRegiseter = async (
+  user_id: string,
   name: string,
   email: string,
   nickname: string,
@@ -16,7 +17,7 @@ export const userRegiseter = async (
   salt: string,
 ) => {
   const user = new User({
-    name, email, nickname, service_number, password, salt
+    user_id, name, email, nickname, service_number, password, salt
   });
 
   try {
