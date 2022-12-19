@@ -1,17 +1,13 @@
 import Router from "@koa/router";
 import User from "../../../schema/user";
-import { passwordEncryption, userRegiseter } from '../../../services/user.service';
+import userService from '../../../services/user.service'
 
 const authRoute = new Router();
 
-authRoute.post('/register/local', async ctx => {
-  const { user_id, name, email, nickname, password, service_number  } = ctx.request.body;
-  
-  const EncryptedPwd = passwordEncryption(password)
-  const user = userRegiseter(user_id, name, email, nickname, service_number, EncryptedPwd[0], EncryptedPwd[1]);
-  ctx.status = 200;
-
+authRoute.post('/user/signup/local', async ctx => {
+  const user = await userService.register(ctx.request.body);
   console.log(user);
+  ctx.status = 200;
 })
 
 /** user manage */
