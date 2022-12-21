@@ -6,7 +6,7 @@ interface AuthParams {
   email: string,
   name: string,
   password: string,
-  salt: any,
+  salt: string,
   createdAt: string
   birth: string
 }
@@ -19,10 +19,12 @@ const hashedPassword = async (password: string) => {
   } catch (e) {
     console.log(e);
   }
-},
+}
+
+const koDtf = new Intl.DateTimeFormat("ko", { dateStyle: "long" });
 
 const userService = {
-  async register({email, password, name, birth, salt, createdAt}: AuthParams) {
+  async register({email, password, name, birth, salt}: AuthParams) {
     const exists = await db.user.findUnique({
       where: {
         email
@@ -37,10 +39,10 @@ const userService = {
     const user = await db.user.create({
       data: {
         email,
-        password: hash[0],
         name,
-        createdAt,
-        birth
+        birth: new Date(),
+        password: hash[0],
+        createdAt: new Date()
       }
     })
 
