@@ -4,14 +4,16 @@ import userService from '../../../services/user.service'
 
 const authRoute = new Router();
 
-authRoute.post('/user/signup/local', async ctx => {
+authRoute.post('/signup/local', async ctx => {
   const user = await userService.register(ctx.request.body);
-  console.log(user);
-  ctx.status = 200;
+  if (user) {
+    ctx.status = 200;
+    return user;
+  }
 })
 
 /** user manage */
-authRoute.get('/user', async ctx => {
+authRoute.get('/', async ctx => {
   const { id } = ctx.query;
 
   try {
@@ -31,7 +33,7 @@ authRoute.get('/user', async ctx => {
   }
 })
 
-authRoute.delete('user/:id', async ctx => {
+authRoute.delete('/:id', async ctx => {
   const id = ctx.params;
 
   try {
