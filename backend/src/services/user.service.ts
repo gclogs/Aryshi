@@ -21,7 +21,7 @@ const hashedPassword = async (password: string) => {
   }
 }
 
-const koDtf = new Intl.DateTimeFormat("ko", { dateStyle: "long" });
+const koDtf = new Intl.DateTimeFormat("ko", { dateStyle: "full", timeStyle: "short" });
 
 const userService = {
   async register({email, password, name, birth, salt}: AuthParams) {
@@ -42,11 +42,19 @@ const userService = {
         name,
         birth: new Date(),
         password: hash[0],
-        createdAt: new Date()
+        createdAt: koDtf.format(new Date())
       }
     })
 
     return user;
+  },
+  
+  unregister(userEmail: string) {
+    return db.user.delete({
+      where: {
+        email: userEmail
+      }
+    })
   }
 }
 

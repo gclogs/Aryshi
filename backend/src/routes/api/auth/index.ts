@@ -33,15 +33,12 @@ authRoute.get('/', async ctx => {
   }
 })
 
-authRoute.delete('/:id', async ctx => {
-  const id = ctx.params;
-
-  try {
-    await User.findByIdAndRemove(id).exec();
-    ctx.status = 200;
-  } catch (e) {
-    console.log(e);
-  }
+authRoute.delete('/:email', async ctx => {
+  const email  = ctx.params;
+  const authResult = await userService.unregister(email);
+  console.log(email);
+  ctx.status = 200;
+  return authResult;
 })
 
 export default authRoute;

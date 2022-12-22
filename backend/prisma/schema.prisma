@@ -13,7 +13,7 @@ model User {
   password  String
   name  String
   birth DateTime
-  createdAt DateTime
+  createdAt String
   rooms Room[]
 }
 
