@@ -1,4 +1,3 @@
-
 interface Error {
   [prop: string]: {
     statusCode: number,
@@ -12,19 +11,23 @@ const errors: Error = {
     message: 'User already exists',
   },
   Unknown: {
-    statusCode: 401,
+    statusCode: 500,
     message: 'Unauthorized',
   },
   BadRequest: {
     statusCode: 400,
     message: 'Bad Request'
+  },
+  WrongCredentials: {
+    statusCode: 401,
+    message: 'Invalid email or password'
   }
 }
 
 export default class AppErorr extends Error {
   public statusCode: number;
 
-  constructor(public name: string, public payload) {
+  constructor(public name: string, public payload?) {
     const info = errors[name]
     super(info.message);
     this.statusCode = info.statusCode;
