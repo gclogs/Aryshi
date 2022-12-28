@@ -1,30 +1,21 @@
-import { pbkdf2Sync, randomBytes } from "crypto"
+import bcrypt from 'bcrypt'
 import db from '../lib/db'
-import User from "../schema/user";
+import AppErorr from "../lib/error"
+
+const SALT = 10;
 
 interface AuthParams {
   email: string,
   name: string,
   password: string,
-  salt: string,
   createdAt: string
   birth: string
-}
-
-const hashedPassword = async (password: string) => {
-  const salt = await randomBytes(16).toString('base64');
-  try {
-    const result: Array<string> = [pbkdf2Sync(password, salt, 9999, 64, 'SHA512').toString('base64'), salt]
-    return result;
-  } catch (e) {
-    console.log(e);
-  }
 }
 
 const koDtf = new Intl.DateTimeFormat("ko", { dateStyle: "full", timeStyle: "short" });
 
 const userService = {
-  async register({email, password, name, birth, salt}: AuthParams) {
+  async register({email, password, name, birth}: AuthParams) {
     const exists = await db.user.findUnique({
       where: {
         email
@@ -32,29 +23,73 @@ const userService = {
     })
 
     if (exists) {
-      throw new Error('Aleady Email')
+      throw new AppErorr('UserExists')
     }
 
-    const hash: any = await hashedPassword(password);
+    const hash = await bcrypt.hash(password, SALT);
     const user = await db.user.create({
       data: {
         email,
         name,
         birth: new Date(),
-        password: hash[0],
-        createdAt: koDtf.format(new Date())
+        passwordHash: hash,
+        createdAt: koDtf.format(new Date()),
       }
     })
 
     return user;
   },
   
-  unregister(userEmail: string) {
+  unregister(email: string) {
     return db.user.delete({
+      where: {
+        email
+      }
+    })
+  },
+
+  async update({email, name}) {
+    const user = await db.user.update({
+      where: { email },
+      data: {
+        name
+      }
+    })
+
+    return user;
+  },
+
+  async login({ email, password }: AuthParams) {
+    const user = await db.user.findUnique({
+      where: {
+        email,
+      }
+    })
+    
+    if (!email) {
+      throw new AppErorr("WrongCredentials")
+    }
+    
+    try {
+      const match = await bcrypt.compare(password, user.passwordHash)
+      if (!match) {
+        throw new AppErorr("WrongCredentials");
+      }
+    } catch(e) {
+      console.log(e);
+      throw new AppErorr("WrongCredentials")
+    }
+
+    return user;
+  },
+  
+  async findEmail(userEmail) {
+    const user = await db.user.findUnique({
       where: {
         email: userEmail
       }
     })
+    return user;
   }
 }
 
