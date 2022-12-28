@@ -17,18 +17,6 @@ server.use(router.allowedMethods({
   throw: true
 }));
 
-server.on('error', async (err: Error, ctx: Context) => {
-  if (err instanceof AppErorr) {
-    ctx.body = {
-      name: err.name,
-      message: err.message,
-      statusCode: err.statusCode
-    }
-  }
-
-  return err;
-})
-
 server.listen(4000, () => {
   console.log(`Listening to port 4000`)
 })
