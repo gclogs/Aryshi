@@ -1,8 +1,9 @@
 import bcrypt from 'bcrypt'
 import db from '../lib/db'
 import AppErorr from "../lib/error"
-
-const SALT = 10;
+import { generateToken } from '../lib/token'
+import { User, Token } from '@prisma/client'
+import { DateTime } from '../lib/date'
 
 interface AuthParams {
   email: string,
@@ -12,9 +13,44 @@ interface AuthParams {
   birth: string
 }
 
-const koDtf = new Intl.DateTimeFormat("ko", { dateStyle: "full", timeStyle: "short" });
+const SALT = 10;
 
 const userService = {
+  async createToken(userEmail: string) {
+    const token = await db.token.create({
+      data: {
+        userEmail
+      }
+    })
+
+    return token;
+  },
+
+  async generateTokens(user: User, userToken: Token) {
+    const { email: userEmail, name: userName } = user;
+    const token = userToken ?? (await this.createToken)
+    const tokenId = token.id
+
+    const [accessToken, refreshToken] = await Promise.all([
+      generateToken({
+        type: 'access_token',
+        userEmail,
+        tokenId,
+        userName
+      }),
+      generateToken({
+        type: 'refresh_token',
+        tokenId,
+        rotationCounter: token.rotationCounter
+      })
+    ])
+
+    return {
+      refreshToken,
+      accessToken
+    }
+  },
+
   async register({email, password, name, birth}: AuthParams) {
     const exists = await db.user.findUnique({
       where: {
@@ -33,11 +69,16 @@ const userService = {
         name,
         birth: new Date(),
         passwordHash: hash,
-        createdAt: koDtf.format(new Date()),
+        createdAt: DateTime("full", "short", "Asia/Seoul")
       }
     })
+    
+    const tokens = await this.generateTokens(user);
 
-    return user;
+    return {
+      tokens,
+      user
+    };
   },
   
   unregister(email: string) {
@@ -48,15 +89,32 @@ const userService = {
     })
   },
 
-  async update({email, name}) {
-    const user = await db.user.update({
-      where: { email },
+  async update({email, name, password}) {
+    const user = await db.user.findUnique({
+      where: { email }
+    })
+
+    try {
+      const match = await bcrypt.compare(password, user.passwordHash);
+      if (!(match)) {
+        throw new AppErorr("WrongCredentials");
+      }
+    } catch (e) {
+      console.log(e);
+      throw new Error(e);
+    }
+
+    await db.user.update({
+      where: {
+        email
+      },
+      
       data: {
         name
       }
     })
-
-    return user;
+    
+    return true;
   },
 
   async login({ email, password }: AuthParams) {
@@ -80,7 +138,8 @@ const userService = {
       throw new AppErorr("WrongCredentials")
     }
 
-    return user;
+    const tokens = await this.generateTokens(user);
+    return { tokens, user };
   },
   
   async findEmail(userEmail) {

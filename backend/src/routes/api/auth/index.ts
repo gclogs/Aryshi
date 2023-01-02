@@ -4,21 +4,21 @@ import userService from '../../../services/user.service'
 const authRoute = new Router();
 
 authRoute.post('/signup/local', async ctx => {
-  const user = await userService.register(ctx.request.body);
+  const authResult = await userService.register(ctx.request.body);
   
   ctx.body = {
     status: 200,
-    message: `${user.name} 회원이 가입하였습니다.`,
-    data: user
+    message: `${authResult.user.name} 회원이 가입하였습니다.`,
+    data: authResult.token
   };
 
-  return user;
+  return authResult;
 })
 
 authRoute.get('/', async ctx => {
   const { email } = ctx.query;
-  const user = await userService.findEmail(email);
-  return user;
+  const authResult = await userService.findEmail(email);
+  return authResult;
 })
 
 authRoute.put('/', async ctx => {
@@ -47,11 +47,14 @@ authRoute.delete('/', async ctx => {
 
 authRoute.post('/login', async ctx => {
   const user = await userService.login(ctx.request.body);
+  
+  if (user) {
+    ctx.body = {
+      status: 200,
+      message: `${user.name} 님이 ${new Date().getFullYear()} 시간에 로그인 하였습니다.`,
+    };
+  }
 
-  ctx.body = {
-    status: 200,
-    message: `${user.name} 님이 ${new Date()} 시간에 로그인 하였습니다.`,
-  };
 
   return user;
 })
