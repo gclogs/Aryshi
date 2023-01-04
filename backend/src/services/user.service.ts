@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt'
 import db from '../lib/db'
-import AppErorr from "../lib/error"
-import { generateToken } from '../lib/token'
+import AppErorr, { isAppErorr } from "../lib/error"
+import { generateToken, RefreshTokenPayload, validateToken } from '../lib/token'
 import { User, Token } from '@prisma/client'
 import { DateTime } from '../lib/date'
 
@@ -123,9 +123,9 @@ const userService = {
         email,
       }
     })
-    
+
     if (!email) {
-      throw new AppErorr("WrongCredentials")
+      throw new AppErorr("WrongCredentials");
     }
     
     try {
@@ -134,21 +134,70 @@ const userService = {
         throw new AppErorr("WrongCredentials");
       }
     } catch(e) {
-      console.log(e);
-      throw new AppErorr("WrongCredentials")
+      if (isAppErorr(e)) {
+        throw e
+      }
+      throw new AppErorr("Unknown")
     }
 
     const tokens = await this.generateTokens(user);
-    return { tokens, user };
+    return {
+      tokens,
+      user
+    };
   },
   
-  async findEmail(userEmail) {
+  async getEmail(userEmail) {
     const user = await db.user.findUnique({
       where: {
         email: userEmail
       }
     })
     return user;
+  },
+
+  async refreshToken(token: string) {
+    try {
+      const { tokenId, rotationCounter }: any = await validateToken(token);
+      const tokenItem = await db.token.findUnique({
+        where: {
+          id: tokenId,
+        },
+        include: {
+          user: true
+        }
+      })
+      
+      if (!tokenItem) {
+        throw new Error(`Token not found`);
+      }
+      if (tokenItem.blocked) {
+        throw new Error(`Token is blocked`);
+      }
+      if (tokenItem.rotationCounter !== rotationCounter) {
+        await db.token.update({
+          where: {
+            id: tokenId
+          },
+          data: {
+            blocked: true
+          }
+        })
+        throw new Error(`Rotaiton counter does not match`)
+      }
+      tokenItem.rotationCounter += 1;
+      await db.token.update({
+        where: {
+          id: tokenId
+        },
+        data: {
+          rotationCounter: tokenItem.rotationCounter
+        }
+      })
+      return this.generateTokens(tokenItem.user, tokenItem)
+    } catch (e) {
+      throw new AppErorr()
+    }
   }
 }
 

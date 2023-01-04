@@ -9,7 +9,7 @@ authRoute.post('/signup/local', async ctx => {
   ctx.body = {
     status: 200,
     message: `${authResult.user.name} 회원이 가입하였습니다.`,
-    data: authResult.token
+    data: authResult.tokens
   };
 
   return authResult;
@@ -17,20 +17,16 @@ authRoute.post('/signup/local', async ctx => {
 
 authRoute.get('/', async ctx => {
   const { email } = ctx.query;
-  const authResult = await userService.findEmail(email);
+  const authResult = await userService.getEmail(email);
   return authResult;
 })
 
 authRoute.put('/', async ctx => {
-  const user = await userService.update(ctx.request.body);
+  const authResult = await userService.update(ctx.request.body);
 
   ctx.body = {
-    status: 200,
-    message: `${user.name}님이 ${ctx.request.body}을(를) 수정하였습니다.`,
-    data: user
+    status: 200
   }
-
-  return user;
 })
 
 authRoute.delete('/', async ctx => {
@@ -46,17 +42,17 @@ authRoute.delete('/', async ctx => {
 })
 
 authRoute.post('/login', async ctx => {
-  const user = await userService.login(ctx.request.body);
+  const authResult = await userService.login(ctx.request.body);
   
-  if (user) {
+  if (authResult.user) {
     ctx.body = {
       status: 200,
-      message: `${user.name} 님이 ${new Date().getFullYear()} 시간에 로그인 하였습니다.`,
+      message: `${authResult.user.name} 님이 ${new Date()} 시간에 로그인 하였습니다.`,
+      data: authResult
     };
   }
 
-
-  return user;
+  return authResult;
 })
 
 export default authRoute;
