@@ -1,14 +1,19 @@
 import bcrypt from 'bcrypt'
 import db from '../lib/db'
 import AppErorr, { isAppErorr } from "../lib/error"
-import { generateToken, RefreshTokenPayload, validateToken } from '../lib/token'
+import { generateToken, validateToken } from '../lib/token'
 import { User, Token } from '@prisma/client'
 import { DateTime } from '../lib/date'
 
+interface TokenParams {
+  accessToken: string
+  refreshToken: string
+}
+
 interface AuthParams {
-  email: string,
-  name: string,
-  password: string,
+  email: string
+  name: string
+  password: string
   createdAt: string
   birth: string
 }
@@ -16,10 +21,10 @@ interface AuthParams {
 const SALT = 10;
 
 const userService = {
-  async createToken(userEmail: string) {
+  async createToken(userId: string) {
     const token = await db.token.create({
       data: {
-        userEmail
+        userId
       }
     })
 
@@ -73,7 +78,7 @@ const userService = {
       }
     })
     
-    const tokens = await this.generateTokens(user);
+    const tokens: TokenParams = await this.generateTokens(user);
 
     return {
       tokens,
@@ -87,34 +92,6 @@ const userService = {
         email
       }
     })
-  },
-
-  async update({email, name, password}) {
-    const user = await db.user.findUnique({
-      where: { email }
-    })
-
-    try {
-      const match = await bcrypt.compare(password, user.passwordHash);
-      if (!(match)) {
-        throw new AppErorr("WrongCredentials");
-      }
-    } catch (e) {
-      console.log(e);
-      throw new Error(e);
-    }
-
-    await db.user.update({
-      where: {
-        email
-      },
-      
-      data: {
-        name
-      }
-    })
-    
-    return true;
   },
 
   async login({ email, password }: AuthParams) {
@@ -140,20 +117,11 @@ const userService = {
       throw new AppErorr("Unknown")
     }
 
-    const tokens = await this.generateTokens(user);
+    const tokens: TokenParams = await this.generateTokens(user);
     return {
       tokens,
       user
     };
-  },
-  
-  async getEmail(userEmail) {
-    const user = await db.user.findUnique({
-      where: {
-        email: userEmail
-      }
-    })
-    return user;
   },
 
   async refreshToken(token: string) {
@@ -196,7 +164,7 @@ const userService = {
       })
       return this.generateTokens(tokenItem.user, tokenItem)
     } catch (e) {
-      throw new AppErorr()
+      throw new AppErorr("BadRequest")
     }
   }
 }
