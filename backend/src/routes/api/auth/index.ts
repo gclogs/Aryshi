@@ -15,20 +15,6 @@ authRoute.post('/signup/local', async ctx => {
   return authResult;
 })
 
-authRoute.get('/', async ctx => {
-  const { email } = ctx.query;
-  const authResult = await userService.getEmail(email);
-  return authResult;
-})
-
-authRoute.put('/', async ctx => {
-  const authResult = await userService.update(ctx.request.body);
-
-  ctx.body = {
-    status: 200
-  }
-})
-
 authRoute.delete('/', async ctx => {
   const { email }: any = ctx.query;
   const user = await userService.unregister(email);
@@ -43,13 +29,21 @@ authRoute.delete('/', async ctx => {
 
 authRoute.post('/login', async ctx => {
   const authResult = await userService.login(ctx.request.body);
-  
+
+  ctx.cookies.set('access_token', authResult.tokens.accessToken, {
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24 * 7
+  });
+
+  ctx.cookies.set('refresh_token', authResult.tokens.refreshToken, {
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24 * 7
+  });
+
+  console.log(ctx.cookies.get('refresh_token'))
+
   if (authResult.user) {
-    ctx.body = {
-      status: 200,
-      message: `${authResult.user.name} 님이 ${new Date()} 시간에 로그인 하였습니다.`,
-      data: authResult
-    };
+    ctx.body = authResult.user
   }
 
   return authResult;
