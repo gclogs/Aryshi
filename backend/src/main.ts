@@ -3,16 +3,15 @@ import router from './routes'
 import bodyParser from 'koa-bodyparser';
 import mongoDB from './database';
 import * as dotenv from 'dotenv';
-import { authMiddlewareAsync } from './middleware/authMiddleware';
-
+import middlewares from './middleware';
 dotenv.config();
 
 const database = new mongoDB();
 const server: Koa = new Koa();
 database.conn();
 
-server.use(authMiddlewareAsync)
 server.use(bodyParser())
+server.use(middlewares.routes());
 server.use(router.routes());
 server.use(router.allowedMethods({
   throw: true
