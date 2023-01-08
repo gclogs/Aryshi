@@ -86,7 +86,7 @@ const userService = {
     };
   },
   
-  unregister(email: string) {
+  unregister({ email }: AuthParams) {
     return db.user.delete({
       where: {
         email
