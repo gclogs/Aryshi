@@ -13,6 +13,10 @@ const authMiddlewareAsync = async (ctx: Context, next) => {
   try {
     const decoded = await validateToken(token);
     ctx.request.user = decoded;
+    // ctx.body = {
+    //   status: 200,
+    //   data: ctx.request.user
+    // }
   } catch (e: any) {
     console.log(e)
   }
