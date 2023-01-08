@@ -1,21 +1,34 @@
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET
-const JWT_CONFIG = {
-  secretKey: JWT_SECRET,
+export interface AccessTokenPayload {
+  type: 'access_token',
+  userEmail: string
+  userName: string
+  tokenId: string
+}
+
+export interface RefreshTokenPayload {
+  type: 'refresh_token',
+  tokenId: string,
+  rotationCounter: number
+}
+
+export type TokenPayload = AccessTokenPayload | RefreshTokenPayload;
+
+const tokenConfig = {
+  secretKey: process.env.JWT_SECRET,
   options: {
-    algorithm: "HS256",
     expiresIn: "1h",
-    issuer: "issuer"
   }
 }
 
-export function generateToken(payload) {
+export function generateToken(payload: TokenPayload) {
   return new Promise<string>((resolve, reject) => {
+    console.log(tokenConfig['secretKey'], tokenConfig['options'])
     jwt.sign(
       payload,
-      JWT_CONFIG.secretKey,
-      JWT_CONFIG.options,
+      tokenConfig['secretKey'],
+      tokenConfig['options'],
       (err, token) => {
         if (err || !token) {
           reject(err)
@@ -29,7 +42,7 @@ export function generateToken(payload) {
 
 export function validateToken(token: string) {
   return new Promise((resolve, reject) => {
-    jwt.verify(token, JWT_CONFIG.secretKey, (err, decoded) => {
+    jwt.verify(token, tokenConfig['secretKey'], (err, decoded) => {
       if (err) reject(err);
       resolve(decoded)
     })
