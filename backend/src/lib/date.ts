@@ -1,5 +1,14 @@
-const Language = process.env.LANGUAGE
-
-export function DateTime(_dateStyle, _timeStyle, _timeZone) {
-  return new Intl.DateTimeFormat(Language, { dateStyle: _dateStyle, timeStyle: _timeStyle, timeZone: _timeZone }).format(new Date())
+const dateConfig = {
+  lang: process.env.LANGUAGE
 }
+
+type DateTimeStyleFormat = "full" | "long" | "medium" | "short" | undefined;
+type TimeZoneFormat = string | undefined;
+
+const date = {
+  now(d: DateTimeStyleFormat, t: DateTimeStyleFormat, tz: TimeZoneFormat) {
+   return new Intl.DateTimeFormat(dateConfig.lang, { dateStyle: d, timeStyle: t, timeZone: tz }).format(new Date())
+ }
+}
+
+export default date;
