@@ -3,7 +3,7 @@ import db from '../lib/db'
 import AppErorr, { isAppErorr } from "../lib/error"
 import { generateToken, validateToken } from '../lib/token'
 import { User, Token } from '@prisma/client'
-import { DateTime } from '../lib/date'
+import date from '../lib/date'
 
 interface TokenParams {
   accessToken: string
@@ -21,10 +21,10 @@ interface AuthParams {
 const SALT = 10;
 
 const userService = {
-  async createToken(userId: string) {
+  async createToken(userEmail: string) {
     const token = await db.token.create({
       data: {
-        userId
+        userEmail
       }
     })
 
@@ -33,7 +33,7 @@ const userService = {
 
   async generateTokens(user: User, userToken: Token) {
     const { email: userEmail, name: userName } = user;
-    const token = userToken ?? (await this.createToken)
+    const token = userToken ?? (await this.createToken(userEmail))
     const tokenId = token.id
 
     const [accessToken, refreshToken] = await Promise.all([
@@ -74,7 +74,7 @@ const userService = {
         name,
         birth: new Date(),
         passwordHash: hash,
-        createdAt: DateTime("full", "short", "Asia/Seoul")
+        createdAt: date.now("full", "short", "Asia/Seoul")
       }
     })
     
@@ -127,6 +127,7 @@ const userService = {
   async refreshToken(token: string) {
     try {
       const { tokenId, rotationCounter }: any = await validateToken(token);
+      console.log(tokenId, rotationCounter)
       const tokenItem = await db.token.findUnique({
         where: {
           id: tokenId,
@@ -164,6 +165,7 @@ const userService = {
       })
       return this.generateTokens(tokenItem.user, tokenItem)
     } catch (e) {
+      console.log(e)
       throw new AppErorr("BadRequest")
     }
   }

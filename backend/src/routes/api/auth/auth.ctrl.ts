@@ -39,8 +39,7 @@ const authCtrl = {
     }
 
     const tokens = await userService.refreshToken(refreshToken);
-
-    setTokenCookie(ctx, 'access_token', authResult.tokens.accessToken);
+    setTokenCookie(ctx, 'access_token', tokens);
 
     return tokens;
   }
