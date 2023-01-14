@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 
 export interface AccessTokenPayload {
   type: 'access_token',
-  userEmail: string
+  userId: string
   userName: string
   tokenId: string
 }
@@ -24,7 +24,6 @@ const tokenConfig = {
 
 export function generateToken(payload: TokenPayload) {
   return new Promise<string>((resolve, reject) => {
-    console.log(tokenConfig['secretKey'], tokenConfig['options'])
     jwt.sign(
       payload,
       tokenConfig['secretKey'],
