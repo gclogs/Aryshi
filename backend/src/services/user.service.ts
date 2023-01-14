@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt'
 import db from '../lib/db'
-import AppErorr, { isAppErorr } from "../lib/error"
+import AppError, { isAppError } from "../lib/error"
 import { generateToken, validateToken } from '../lib/token'
 import { User, Token } from '@prisma/client'
 import date from '../lib/date'
@@ -21,25 +21,26 @@ interface AuthParams {
 const SALT = 10;
 
 const userService = {
-  async createToken(userEmail: string) {
+  async createToken(userId: string) {
     const token = await db.token.create({
       data: {
-        userEmail
+        userId
       }
     })
 
     return token;
   },
 
-  async generateTokens(user: User, userToken: Token) {
-    const { email: userEmail, name: userName } = user;
-    const token = userToken ?? (await this.createToken(userEmail))
+  async generateTokens(user: User, tokenItem: Token) {
+    const { id: userId, name: userName } = user;
+    const token = tokenItem ?? (await this.createToken(userId))
     const tokenId = token.id
+    console.log(tokenId, userId)
 
     const [accessToken, refreshToken] = await Promise.all([
       generateToken({
         type: 'access_token',
-        userEmail,
+        userId,
         tokenId,
         userName
       }),
@@ -64,7 +65,7 @@ const userService = {
     })
 
     if (exists) {
-      throw new AppErorr('UserExists')
+      throw new AppError('UserExists')
     }
 
     const hash = await bcrypt.hash(password, SALT);
@@ -102,19 +103,19 @@ const userService = {
     })
 
     if (!email) {
-      throw new AppErorr("WrongCredentials");
+      throw new AppError("WrongCredentials");
     }
     
     try {
       const match = await bcrypt.compare(password, user.passwordHash)
       if (!match) {
-        throw new AppErorr("WrongCredentials");
+        throw new AppError("WrongCredentials");
       }
     } catch(e) {
-      if (isAppErorr(e)) {
+      if (isAppError(e)) {
         throw e
       }
-      throw new AppErorr("Unknown")
+      throw new AppError("Unknown")
     }
 
     const tokens: TokenParams = await this.generateTokens(user);
@@ -136,6 +137,8 @@ const userService = {
           user: true
         }
       })
+
+      console.log(tokenItem);
       
       if (!tokenItem) {
         throw new Error(`Token not found`);
@@ -166,7 +169,7 @@ const userService = {
       return this.generateTokens(tokenItem.user, tokenItem)
     } catch (e) {
       console.log(e)
-      throw new AppErorr("BadRequest")
+      throw new AppError("BadRequest")
     }
   }
 }

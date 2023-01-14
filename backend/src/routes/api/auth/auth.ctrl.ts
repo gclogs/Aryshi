@@ -1,5 +1,6 @@
 import { Context } from "koa";
 import { clearCookies, setTokenCookie } from "../../../lib/cookies";
+import AppError from "../../../lib/error";
 import userService from "../../../services/user.service"
 
 const authCtrl = {
@@ -33,12 +34,15 @@ const authCtrl = {
   },
 
   async refresh(ctx: Context) {
-    const refreshToken = ctx.request.requestToken ?? ctx.cookies.get('refresh_token');
+    const refreshToken = ctx.request.refershToekn ?? ctx.cookies.get('refresh_token');
     if (!refreshToken) {
-      throw new Error('BadRequest');
+      throw new AppError('BadRequest');
     }
 
     const tokens = await userService.refreshToken(refreshToken);
+    if (!tokens) {
+      throw new AppError('BadRequest')
+    }
     setTokenCookie(ctx, 'access_token', tokens);
 
     return tokens;
