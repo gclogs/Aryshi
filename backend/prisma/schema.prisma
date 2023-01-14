@@ -24,4 +24,5 @@ model Token {
   userId String @db.ObjectId
   rotationCounter Int @default(1)
   blocked Boolean @default(false)
+  createdAt DateTime @default(now())
 }
