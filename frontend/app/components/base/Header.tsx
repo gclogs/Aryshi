@@ -1,5 +1,4 @@
-import { styled } from '@stitches/react';
-import color from '~/lib/color';
+import { Link } from "@remix-run/react"
 
 interface Props {
   title?: string
@@ -9,26 +8,43 @@ export default function Header({
   title,
 }: Props) {
   return (
-    <Block>
-      <Title title={title}/> 
-    </Block>
+    <div className="w-full h-14 border-solid border-b-2 border-gray-200 relative">
+      <LogoLink title={title} />
+      <IconGroup>
+        <Profile />
+        <Search />
+      </IconGroup>
+    </div>
   )
 }
 
-const Block = styled('header', {
-  position: 'relative',
-  height: '56px',
-  borderBottom: `1px solid ${color.bottom}`,
-  paddingLeft: '16px',
-  paddingRight: '16px',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  marginBottom: '2rem',
-})
+const LogoLink = ({title}: Props) => {
+  return(
+    <Link to="/">
+      <img 
+        className="absolute left-3 top-5"
+        src="" 
+        alt="Aryshi" />
+    </Link>
+  )
+}
 
-const Title = styled('div', {
-  color: `${color.black}`,
-  fontSize: '18px',
-  fontWeight: '600'
-})
+const IconGroup = ({children}) => {
+  return (
+    <div className="absolute right-3 top-5">
+      {children}
+    </div>
+  )
+}
+
+const Profile = () => {
+  return(
+    <span>프로필</span>
+  )
+}
+
+const Search = () => {
+  return(
+    <span>검색</span>
+  )
+}
