@@ -1,5 +1,9 @@
 # Aryshi
-- Image
+- The front-end part of the project is very lacking.
+- It's a waste of time to learn Next.js and too little information to see Remix, so even if there is an error log or a bug, there is a situation where you can't solve it.
+
+- So, I'm going to take a break from the project and focus on concepts and algorithms.
+- I'm sorry :(
 
 ## 🧩 Army Report System (ARS) : 아리시
 #### It is a report web app that combines many reporting systems and difficulties to talk face-to-face due to the revitalization of military personnel's mobile phones and the introduction of the COVID-19 era.
