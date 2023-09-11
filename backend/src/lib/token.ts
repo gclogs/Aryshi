@@ -3,8 +3,9 @@ import jwt from 'jsonwebtoken';
 export interface AccessTokenPayload {
   type: 'access_token',
   userId: string
-  userName: string
   tokenId: string
+  email: string
+  serial: string
 }
 
 export interface RefreshTokenPayload {

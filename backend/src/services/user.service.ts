@@ -12,19 +12,23 @@ interface TokenParams {
 
 interface AuthParams {
   email: string
-  name: string
   password: string
-  createdAt: string
-  birth: string
+  serial: string
+  username: string
+  nickname: string
+  birth?: string
+  createdAt?: string
 }
 
 const SALT = 10;
 
 const userService = {
-  async createToken(userId: string) {
+  async createToken(userId, serial, email) {
     const token = await db.token.create({
       data: {
-        userId
+        userId,
+        serial,
+        email
       }
     })
 
@@ -32,17 +36,17 @@ const userService = {
   },
 
   async generateTokens(user: User, tokenItem: Token) {
-    const { id: userId, name: userName } = user;
-    const token = tokenItem ?? (await this.createToken(userId))
+    const { id: userId, serial, email } = user;
+    const token = tokenItem ?? (await this.createToken(userId, serial, email))
     const tokenId = token.id
-    console.log(tokenId, userId)
 
     const [accessToken, refreshToken] = await Promise.all([
       generateToken({
         type: 'access_token',
         userId,
         tokenId,
-        userName
+        email,
+        serial
       }),
       generateToken({
         type: 'refresh_token',
@@ -57,7 +61,9 @@ const userService = {
     }
   },
 
-  async register({email, password, name, birth}: AuthParams) {
+  async register(
+    {email, password, serial, username, nickname, birth}
+    : AuthParams) {
     const exists = await db.user.findUnique({
       where: {
         email
@@ -72,7 +78,9 @@ const userService = {
     const user = await db.user.create({
       data: {
         email,
-        name,
+        serial,
+        username,
+        nickname,
         birth: new Date(),
         passwordHash: hash,
         createdAt: date.now("full", "short", "Asia/Seoul")
@@ -87,8 +95,9 @@ const userService = {
     };
   },
   
-  unregister({ email }: AuthParams) {
-    return db.user.delete({
+  async unregister({ email }: AuthParams) {
+    await db.token.delete( {where: { email }} );
+    return await db.user.delete({
       where: {
         email
       }
@@ -99,7 +108,7 @@ const userService = {
     const user = await db.user.findUnique({
       where: {
         email,
-      }
+      } 
     })
 
     if (!email) {
@@ -137,8 +146,6 @@ const userService = {
           user: true
         }
       })
-
-      console.log(tokenItem);
       
       if (!tokenItem) {
         throw new Error(`Token not found`);
