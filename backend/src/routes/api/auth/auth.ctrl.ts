@@ -10,7 +10,6 @@ const authCtrl = {
     setTokenCookie(ctx, 'access_token', authResult.tokens.accessToken);
     setTokenCookie(ctx, 'refresh_token', authResult.tokens.refreshToken);
 
-
     ctx.body = {
       data: authResult
     }
