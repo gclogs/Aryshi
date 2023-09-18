@@ -19,14 +19,3 @@ export default function BaseLayout({
    </Block>
   );
 }
-
-const Block = styled.div`
-  margin: 0;
-  padding: 0;
-`
-
-const Content = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-`
