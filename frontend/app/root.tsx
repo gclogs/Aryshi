@@ -8,6 +8,8 @@ import {
   ScrollRestoration,
 } from "@remix-run/react";
 import styles from './tailwind.css'
+import Header from "./components/base/Header";
+import Footer from "./components/base/Footer";
 
 export const meta: MetaFunction = () => ({
   charset: "utf-8",
@@ -32,7 +34,13 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <Outlet />
+      <div className="flex flex-col h-screen">
+        <Header />
+        <div className="h-full flex-1">
+          <Outlet />
+        </div>
+        <Footer />
+      </div>
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
