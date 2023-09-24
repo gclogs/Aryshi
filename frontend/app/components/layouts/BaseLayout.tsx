@@ -13,9 +13,6 @@ export default function BaseLayout({
   isHeaderVisible
 }: Props) {
   return (
-   <Block>
-      <Header title={title} />
-      <Content>{children}</Content>
-   </Block>
+    <Header title={title} />
   );
 }
