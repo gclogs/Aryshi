@@ -4,7 +4,7 @@ import AppError from "../../../lib/error";
 import userService from "../../../services/user.service"
 
 const authCtrl = {
-  async loign(ctx: Context) {
+  async login(ctx: Context) {
     const authResult = await userService.login(ctx.request.body);
 
     setTokenCookie(ctx, 'access_token', authResult.tokens.accessToken);
@@ -45,6 +45,12 @@ const authCtrl = {
     setTokenCookie(ctx, 'access_token', tokens);
 
     return tokens;
+  },
+
+  async getMyAccount(ctx: Context) {
+    const authResult = ctx.request.body;
+    console.log(authResult)
+    return authResult;
   }
 }
 
