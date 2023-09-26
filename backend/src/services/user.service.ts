@@ -116,6 +116,7 @@ const userService = {
     }
     
     try {
+      if(!user?.passwordHash) return null;
       const match = await bcrypt.compare(password, user.passwordHash)
       if (!match) {
         throw new AppError("WrongCredentials");
