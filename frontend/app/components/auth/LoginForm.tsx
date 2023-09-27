@@ -4,7 +4,6 @@ import Button from '~/lib/system/Button'
 import Title from '~/lib/styles/Title'
 import QuestionLink from './QuestionLink'
 import { ValidatedForm } from 'remix-validated-form'
-import { json } from '@remix-run/node'
 
 const loginDescription = {
   emailPlaceholder: "이메일을 입력해주세요.",
@@ -16,7 +15,7 @@ const loginDescription = {
 }
 
 
-export default function LoginForm({validate}) {
+export default function LoginForm({validate}: any) {
   const {
     emailPlaceholder,
     passwordPlaceholder,

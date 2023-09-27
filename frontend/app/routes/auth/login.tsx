@@ -1,11 +1,9 @@
 import { DataFunctionArgs, json } from "@remix-run/node";
-import { useActionData } from "@remix-run/react";
+import { useActionData, useLoaderData } from "@remix-run/react";
 import { validationError } from "remix-validated-form";
 import LoginForm from "~/components/auth/LoginForm";
-import BaseLayout from "~/components/layouts/BaseLayout";
 import { validator } from "~/lib/validate";
 import { useEffect } from "react";
-
 
 export const action = async ({request}: DataFunctionArgs) => {
   const result = await validator.login.validate(await request.formData());
@@ -39,9 +37,7 @@ export default function Login() {
 
   return (
     <>
-      <BaseLayout>
-        <LoginForm validate={validator.login}/>
-      </BaseLayout>
+      <LoginForm validate={validator.login}/>
     </>
   );
 }
