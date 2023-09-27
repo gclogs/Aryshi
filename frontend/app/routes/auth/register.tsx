@@ -37,9 +37,7 @@ export default function Register() {
 
   return (
     <>
-      <BaseLayout>
-        <RegisterForm validate={validator.register}/>
-      </BaseLayout>
+      <RegisterForm validate={validator.register}/>
     </>
   );
 }
