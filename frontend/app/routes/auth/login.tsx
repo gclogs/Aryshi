@@ -4,6 +4,7 @@ import { validationError } from "remix-validated-form";
 import LoginForm from "~/components/auth/LoginForm";
 import { validator } from "~/lib/validate";
 import { useEffect } from "react";
+import { accessToken, extractTokenCookie, setClientCookie } from "~/lib/api/cookie";
 
 export const action = async ({request}: DataFunctionArgs) => {
   const result = await validator.login.validate(await request.formData());
@@ -20,8 +21,9 @@ export const action = async ({request}: DataFunctionArgs) => {
       },
       body: JSON.stringify(result.data)
     })
-    
-    return json(res.body);
+
+    const accessToken = extractTokenCookie(res, "access_token");
+    return setClientCookie(accessToken);
     
   } catch(e) {
     throw json(e);
@@ -30,6 +32,7 @@ export const action = async ({request}: DataFunctionArgs) => {
 
 export default function Login() {
   const actionData = useActionData();
+  console.log(actionData)
   
   useEffect(() => {
     if (!actionData) return
